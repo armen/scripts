@@ -1,0 +1,86 @@
+#! /bin/bash
+# vim: set expandtab tabstop=4 shiftwidth=4 foldmethod=marker:
+#
+#   Author: Armen Baghumian <armen@OpenSourceClub.org>
+#   License: There is no license, then you are free to do WHAT EVER YOU WANT with
+#            this script
+#
+LOG_NONE=0
+LOG_STDOUT=1
+LOG_ERROR=2
+LOG_INFO=4
+LOG_DEBUG=8
+LOG_ALL=$(($LOG_STDOUT | $LOG_ERROR | $LOG_INFO | $LOG_DEBUG))
+
+check_args_num()
+{
+    if [ "$1" -lt "$2" ]
+    then
+        funcname=`caller 0 | awk '{ print $2 }'`
+        line=`caller 1 | awk '{ print $1 }'`
+        file=`caller 1 | awk '{ print $3 }'`
+        echo "$file: line $line: $funcname requires ${2} arguments" >&2
+        exit 1
+    fi
+}
+
+log_init()
+{
+    if [ "$LOG_FILE" ] && [ -d `dirname "$LOG_FILE"` ] && [ -w `dirname "$LOG_FILE"` ]
+    then
+        LOG_FD=3
+        exec 3>> $LOG_FILE
+    else 
+        # log file does not exist or is not reachable redirect everything to stderr
+        LOG_FD=2
+    fi
+
+    # default values
+    exec 4>/dev/null 8>/dev/null
+
+    (( $LOG_LEVEL & $LOG_STDOUT )) && exec 1>&$LOG_FD
+    (( $LOG_LEVEL & $LOG_ERROR ))  && exec 2>&$LOG_FD
+    (( $LOG_LEVEL & $LOG_INFO ))   && exec 4>&$LOG_FD
+    (( $LOG_LEVEL & $LOG_DEBUG ))  && exec 8>&$LOG_FD
+}
+
+log()
+{
+    # $1 message , $2 log_level
+    check_args_num $# 2
+
+    funcname=`caller 0 | awk '{ print $2 }'`
+
+    if [ ! "$LOG_FD" ]
+    then
+        log_init
+    fi
+
+    if [ -t "$2" ]
+    then
+        # it's stdout so do not prepend date
+        echo "$1" >&$2
+    else
+        echo "$(date) ${funcname}: $1" >&$2
+    fi
+}
+
+die()
+{
+    # $1 message
+    check_args_num $# 1
+
+    log "$1" $LOG_ERROR
+    exit 1
+}
+
+remove_empty_directories()
+{
+    # $1 path
+    check_args_num $# 1
+
+    if [ -d $1 ]
+    then
+        find $1 -depth -type d -empty -exec rmdir {} \;
+    fi
+}
