@@ -3,3 +3,4 @@ Armen's administration scripts
 
 sh-setup:      It's base file of all scripts
 do-nsupdate:   A daemon to update my bind server
+do-socks:      A daemon fo my socks proxy
