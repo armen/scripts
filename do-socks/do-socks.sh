@@ -28,7 +28,7 @@ do
         OPTIONS="$OPTIONS -l $PROXY_USER"
     fi
 
-    ssh $OPTIONS -D $PROXY_PORT $PROXY_DOMAIN &
+    ssh $OPTIONS -ND $PROXY_PORT $PROXY_DOMAIN &
     ssh_pid=$!      # catch ssh's pid so we can cleanup it later when a SIGNAL received
 
     wait $ssh_pid   # wait for it
