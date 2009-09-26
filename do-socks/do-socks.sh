@@ -7,14 +7,14 @@ log "started do-socks..." $LOG_DEBUG
 CONFIG="/etc/default/do-socks.cfg"
 PROXY_PORT=7777
 PROXY_DOMAIN=localhost
-OPTIONS="-Nv"
+OPTIONS="-v"
 
 # Read config file if it is present
 [ -r $CONFIG ] && . $CONFIG
 
 function terminate()
 {
-    kill $ssh_pid
+    kill $ssh_pid 2>/dev/null
     exit 0
 }
 
