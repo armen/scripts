@@ -33,4 +33,12 @@ do
 
     wait $ssh_pid   # wait for it
 
+    ret=$?
+
+    if [ $ret == 255 ]
+    then
+        # ssh returned with error, wait for two minutes
+        sleep 120
+    fi
+
 done
