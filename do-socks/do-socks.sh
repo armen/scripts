@@ -2,12 +2,14 @@
 
 . sh-setup
 
-log "started do-socks..." $LOG_DEBUG
-
 CONFIG="/etc/default/do-socks.cfg"
 PROXY_PORT=7777
 PROXY_DOMAIN=localhost
 OPTIONS="-v"
+LOG_FILE="/var/log/do-socks.log"
+LOG_LEVEL=$LOG_ALL
+
+log "started do-socks..." $LOG_DEBUG
 
 # Read config file if it is present
 [ -r $CONFIG ] && . $CONFIG
