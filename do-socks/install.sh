@@ -6,7 +6,7 @@ CWD="`pwd`"
 DAEMON="$CWD/do-socks.sh"
 INITSCRIPT="$CWD/do-socks"
 CONFIG="$CWD/do-socks.cfg"
-SH_SETUP="$CWD/sh-setup"
+SH_SETUP="$CWD/do-socks-sh-setup"
 
 if [ "$UID" -ne "$ROOT_UID" ]
 then
@@ -30,7 +30,7 @@ case "$1" in
 
         cp $DAEMON /usr/sbin/do-socks.sh
         cp $INITSCRIPT /etc/init.d/do-socks
-        cp $SH_SETUP /usr/bin/sh-setup
+        cp $SH_SETUP /usr/bin/do-socks-sh-setup
 
         echo
         update-rc.d do-socks defaults 99 01

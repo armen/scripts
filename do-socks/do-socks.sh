@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. sh-setup
+. do-socks-sh-setup
 
 CONFIG="/etc/default/do-socks.cfg"
 PROXY_PORT=7777
