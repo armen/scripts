@@ -8,6 +8,7 @@ PROXY_DOMAIN=localhost
 OPTIONS="-v"
 LOG_FILE="/var/log/do-socks.log"
 LOG_LEVEL=$LOG_ALL
+WAIT_FOR_IT=20
 
 log "started do-socks..." $LOG_DEBUG
 
@@ -40,7 +41,7 @@ do
     if [ $ret == 255 ]
     then
         # ssh returned with error, wait for two minutes
-        sleep 120
+        sleep $WAIT_FOR_IT
     fi
 
 done
