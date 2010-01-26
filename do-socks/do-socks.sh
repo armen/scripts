@@ -5,10 +5,11 @@
 CONFIG="/etc/default/do-socks.cfg"
 PROXY_PORT=7777
 PROXY_DOMAIN=localhost
+PROXY_BIND_TO=localhost
+PROXY_RETRY_AFTER=20
 OPTIONS="-v"
 LOG_FILE="/var/log/do-socks.log"
 LOG_LEVEL=$LOG_ALL
-WAIT_FOR_IT=20
 
 log "started do-socks..." $LOG_DEBUG
 
@@ -31,7 +32,7 @@ do
         OPTIONS="$OPTIONS -l $PROXY_USER"
     fi
 
-    ssh $OPTIONS -ND $PROXY_PORT $PROXY_DOMAIN &
+    ssh $OPTIONS -ND $PROXY_BIND_TO:$PROXY_PORT $PROXY_DOMAIN &
     ssh_pid=$!      # catch ssh's pid so we can cleanup it later when a SIGNAL received
 
     wait $ssh_pid   # wait for it
@@ -41,7 +42,7 @@ do
     if [ $ret == 255 ]
     then
         # ssh returned with error, wait for two minutes
-        sleep $WAIT_FOR_IT
+        sleep $PROXY_RETRY_AFTER
     fi
 
 done
