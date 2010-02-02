@@ -1,1 +1,27 @@
 Socks proxy daemon with ssh
+
+=== Installation ===
+
+Just run ./install.sh script as superuser, modify /etc/default/do-socks.cfg for your needs.
+For trubleshooting you can use following command
+
+$ tail -f /var/log/do-socks.log
+
+omit the $ sign.
+
+=== Uninstall ===
+
+You have to run ./install.sh script with "remove" parameter as following example
+
+$ ./install.sh remove
+
+beware that it will remove /etc/default/do-socks.cfg so make a backup if you need.
+
+=== Configuration ===
+
+PROXY_BIND_TO       Address that you want to bind your proxy on it
+PROXY_PORT          Port number of PROXY_BIND_TO
+PROXY_DOMAIN        Proxy'x address or domain name
+PROXY_USER          Username that ssh uses to connect to PROXY_DOMAIN
+PROXY_RETRY_AFTER   Number of seconds that do-socks waits after each failure
+OPTIONS             Any kind of options that you want to pass to ssh (e.g. -vp8442)
