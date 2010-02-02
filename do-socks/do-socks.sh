@@ -41,7 +41,7 @@ do
 
     if [ $ret == 255 ]
     then
-        # ssh returned with error, wait for two minutes
+        # ssh returned with error, wait for couple of seconds
         sleep $PROXY_RETRY_AFTER
     fi
 
