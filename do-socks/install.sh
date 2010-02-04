@@ -8,7 +8,7 @@ INITSCRIPT="$CWD/do-socks"
 CONFIG="$CWD/do-socks.cfg"
 SH_SETUP="$CWD/do-socks-sh-setup"
 
-if [ "$UID" -ne "$ROOT_UID" ]
+if [ "$UID" <> "$ROOT_UID" ]
 then
   echo "Error: Only root can run this script." >&2
   exit 1;
@@ -16,7 +16,7 @@ fi
 
 case "$1" in
     remove)
-        /etc/init.d/do-socks stop
+        /etc/init.d/do-socks stop >/dev/null
 
         rm -f /etc/init.d/do-socks
         rm -f /usr/sbin/do-socksd
