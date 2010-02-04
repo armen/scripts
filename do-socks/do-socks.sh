@@ -25,12 +25,13 @@ function terminate()
 # Do the cleanup when one of SIGHUP, SIGINT, SIGTERM signals is received
 trap terminate SIGHUP SIGINT SIGTERM
 
+if [ "x$PROXY_USER" != "x" ]
+then
+    OPTIONS="$OPTIONS -l $PROXY_USER"
+fi
+
 while (true);
 do
-    if [ "x$PROXY_USER" != "x" ]
-    then
-        OPTIONS="$OPTIONS -l $PROXY_USER"
-    fi
 
     ssh $OPTIONS -ND $PROXY_BIND_TO:$PROXY_PORT $PROXY_DOMAIN &
     ssh_pid=$!      # catch ssh's pid so we can cleanup it later when a SIGNAL received
