@@ -33,7 +33,7 @@ fi
 while (true);
 do
 
-    ssh $SSH_OPTIONS -ND $BIND_ADDRESS:$BIND_PORT $DEST_ADDRESS &
+    ssh $SSH_OPTIONS -ND $BIND_ADDRESS:$BIND_PORT -o BatchMode="yes" -o ServerAliveInterval="120" -o ExitOnForwardFailure="yes" $DEST_ADDRESS &
     ssh_pid=$!      # catch ssh's pid so we can cleanup it later when a SIGNAL received
 
     wait $ssh_pid   # wait for it

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ROOT_UID=0
-CWD="`pwd`"
+CWD=`pwd`
 
 DAEMON="$CWD/do-socks.sh"
 INITSCRIPT="$CWD/do-socks"
@@ -16,24 +16,24 @@ fi
 
 case "$1" in
     remove)
-        /etc/init.d/do-socks stop >/dev/null
+        ignore=`/etc/init.d/do-socks stop 2>/dev/null`
 
-        rm -f /etc/init.d/do-socks
-        rm -f /usr/sbin/do-socksd
-        rm -f /etc/default/do-socks.cfg
+        rm -f "/etc/init.d/do-socks"
+        rm -f "/usr/sbin/do-socksd"
+        rm -f "/etc/default/do-socks.cfg"
 
         echo
-        update-rc.d do-socks remove
+        update-rc.d "do-socks" remove
         echo
     ;;
     *)
 
-        cp $DAEMON /usr/sbin/do-socks.sh
-        cp $INITSCRIPT /etc/init.d/do-socks
-        cp $SH_SETUP /usr/bin/do-socks-sh-setup
+        cp $DAEMON "/usr/sbin/do-socks.sh"
+        cp $INITSCRIPT "/etc/init.d/do-socks"
+        cp $SH_SETUP "/usr/bin/do-socks-sh-setup"
 
         echo
-        update-rc.d do-socks defaults 99 01
+        update-rc.d "do-socks" defaults 99 01
         echo
 
         cp $CONFIG /etc/default/
