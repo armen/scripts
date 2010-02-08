@@ -8,7 +8,7 @@ INITSCRIPT="$CWD/do-socks"
 CONFIG="$CWD/do-socks.cfg"
 SH_SETUP="$CWD/do-socks-sh-setup"
 
-if [ "$UID" <> "$ROOT_UID" ]
+if [ "$UID" != "$ROOT_UID" ]
 then
   echo "Error: Only root can run this script." >&2
   exit 1;
