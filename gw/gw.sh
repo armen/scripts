@@ -27,11 +27,11 @@ then
     filename="${caption}${extension}"
 fi
 
-if [ ! $storage/$filename ]
+if [ ! -f "${storage}/${filename}" ]
 then
     cd $storage
     wget --continue --output-document=$filename $link 2>/dev/null
-    cd -
+    cd - > /dev/null
 fi
 
-echo "$storage/$filename"
+echo "${storage}/${filename}"
