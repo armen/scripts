@@ -13,25 +13,28 @@ link=`cat /tmp/document | sed -n '/Download Wallpaper/ !n; /Download Wallpaper/ 
 caption=`cat /tmp/document | sed -n '/id="caption"/ !n; /<h2>/ !n; /<h2>/ { s/.*<h2>\([^<]\+\)<\/h2>/\1/; s/[- ,]/_/g; s/[\n\r]//g; p; q; }' | tr [:upper:] [:lower:]`
 rm -rf /tmp/document
 
-if [ ! -d $storage ]
+if [ "${link}x" != "x" ]
 then
-    mkdir -p $storage
+    if [ ! -d $storage ]
+    then
+        mkdir -p $storage
+    fi
+
+    filepath=`echo "$link" | perl -MURI -le 'chomp($link = <>); print URI->new($link)->path'`
+    filename=`basename "${filepath}"`
+
+    if [ "${caption}x" != "x" ]
+    then
+        extension=`echo "${filename}"| sed -e "s/.*\(\.[a-zA-Z]\+\)/\1/"`
+        filename="${caption}${extension}"
+    fi
+
+    if [ ! -f "${storage}/${filename}" ]
+    then
+        cd $storage
+        wget --continue --output-document=$filename $link 2>/dev/null
+        cd - > /dev/null
+    fi
+
+    echo "${storage}/${filename}"
 fi
-
-filepath=`echo "$link" | perl -MURI -le 'chomp($link = <>); print URI->new($link)->path'`
-filename=`basename "${filepath}"`
-
-if [ "${caption}x" != "x" ]
-then
-    extension=`echo "${filename}"| sed -e "s/.*\(\.[a-zA-Z]\+\)/\1/"`
-    filename="${caption}${extension}"
-fi
-
-if [ ! -f "${storage}/${filename}" ]
-then
-    cd $storage
-    wget --continue --output-document=$filename $link 2>/dev/null
-    cd - > /dev/null
-fi
-
-echo "${storage}/${filename}"
