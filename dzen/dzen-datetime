@@ -1,0 +1,10 @@
+#!/bin/bash
+
+test "$1x" = "x" && exit 1;
+
+while :; do
+
+echo "${1} ^fg(white)^i($HOME/.dzen2/bitmaps/clock.xbm)" $(date  +"%a %b %d %H:%M") "^fg()" > $HOME/.dzen2/dmpipe
+
+sleep 60
+done

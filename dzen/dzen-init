@@ -1,0 +1,15 @@
+#!/bin/bash
+# date  +"%a %b %d %T"
+DZEN_HOME="${HOME}/.dzen2"
+DM_PIPE="${DZEN_HOME}/dmpipe"
+FONT="-*-terminus-*-r-normal-*-10-120-*-*-*-*-iso8859-*"
+
+test ! -d $DZEN_HOME && mkdir -p $DZEN_HOME >/dev/null
+
+# Create a fifo and launch dzen2
+
+if [ $(which dmplex) ]
+then
+    test ! -f $DM_PIPE && mkfifo $DM_PIPE > /dev/null 2>&1
+    tail -f $DM_PIPE | dmplex | i3-wsbar -c "dzen2 -dock -x %x -fn ${FONT} -bg \"#000\" -ta l"
+fi

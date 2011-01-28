@@ -1,0 +1,26 @@
+#!/bin/bash
+
+function spacer()
+{
+    start="^p(5)"
+    # TODO: Removed hardcoded absolute positioning
+    test $1 = 0 && start="^pa(815)" # This is the first cell
+    echo "${1} ${start}^fg(#777)^ro(1,20)^p(5)^fg()" > $HOME/.dzen2/dmpipe
+}
+
+dzen-init &
+
+spacer 0
+cell=1
+
+for interface in `cat /proc/net/if_inet6 | grep -v lo | awk '{print $6}'`
+do
+    dzen-netmon $cell $interface &
+    let "cell+=1"
+
+    spacer $cell
+    let "cell+=1"
+done
+
+dzen-datetime $cell &
+let "cell+=1"

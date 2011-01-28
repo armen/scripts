@@ -1,0 +1,53 @@
+#!/bin/bash
+# (c) 2011, by Armen Baghumian
+#
+# Based on http://dzen.geekmode.org/dwiki/doku.php?id=dzen:network-meter
+# (c) 2007, by Robert Manea
+
+ICONPATH=$HOME/.dzen2/bitmaps/
+SLEEP=1
+
+place=$1
+interface=$2
+
+interface_icon="^i(${ICONPATH}/net_wired.xbm)"
+cat /proc/net/wireless | grep $interface > /dev/null && interface_icon="^i(${ICONPATH}/wifi_02.xbm)"
+
+# Here we remember the previous rx/tx counts
+rx_bytes=`cat /sys/class/net/${interface}/statistics/rx_bytes`
+tx_bytes=`cat /sys/class/net/${interface}/statistics/tx_bytes`
+
+function format()
+{
+    bytes=$@
+    if [ $bytes -lt 9999 ]; then
+        printf "%5dB" $bytes
+    elif [ $bytes -lt 99999999 ]; then
+        printf "%5dK" $(echo "$bytes / 1024" | bc)
+    elif [ $bytes -lt 999999999999 ]; then
+        printf "%5dM" $(echo "$bytes / 1048576" | bc)
+    else
+        printf "%5dG" $(echo "$bytes / 1073741824" | bc)
+    fi
+}
+
+while :; do
+# get new rx/tx counts
+rx_bytes_new=$(cat /sys/class/net/${interface}/statistics/rx_bytes)
+tx_bytes_new=$(cat /sys/class/net/${interface}/statistics/tx_bytes)
+
+rx_rates=$(echo "($rx_bytes_new - $rx_bytes) / $SLEEP" | bc)
+tx_rates=$(echo "($tx_bytes_new - $tx_bytes) / $SLEEP" | bc)
+
+rx_rates=$(format $rx_rates)
+tx_rates=$(format $tx_rates)
+
+# print out the rates with some nice formatting
+echo "${place} ^fg(white)${interface_icon}^fg(#777)${tx_rates}^fg(orange3)^i(${ICONPATH}/net_up_03.xbm)^fg(#777)${rx_rates}^fg(#80aa83)^p(3)^i(${ICONPATH}/net_down_03.xbm)^fg()" > $HOME/.dzen2/dmpipe
+
+# reset old rates
+rx_bytes=$rx_bytes_new
+tx_bytes=$tx_bytes_new
+
+sleep $SLEEP
+done
