@@ -9,7 +9,7 @@
 
 # XXX: I do sucksify the wget, probably you don't, remove the tsocks from the
 # begining if you like
-WGET="tsocks wget"
+WGET="tsocks wget --timeout=30"
 
 
 storage=~/.wallpapers/national_geographic
