@@ -1,4 +1,5 @@
-== Armen's scripts ==
+Armen's scripts
+===============
 
 sh-setup:      It's base file of all bash scripts in this project
 do-nsupdate:   A daemon to update my bind server
