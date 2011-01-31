@@ -9,13 +9,18 @@
 
 # XXX: I do sucksify the wget, probably you don't, remove the tsocks from the
 # begining if you like
-WGET="tsocks wget --timeout=30"
+WGET="wget --tries=1 --timeout=30 --continue"
 
+logfile='/tmp/gw.log'
+redirect='/dev/null'
 
-storage=~/.wallpapers/national_geographic
-feeds=http://feeds.nationalgeographic.com/ng/photography/photo-of-the-day/
+# check the arguments, if debug is presented do the redirection to log file
+test "${1}" = 'debug' && redirect="${logfile}"
 
-$WGET -O /tmp/feeds $feeds >/dev/null 2>&1
+storage="${HOME}/.wallpapers/national_geographic"
+feeds="http://feeds.nationalgeographic.com/ng/photography/photo-of-the-day/"
+
+$WGET -O /tmp/feeds $feeds >> $redirect 2>&1
 url=`cat /tmp/feeds | grep --max-count=1 "<pheedo:origLink" \
      | sed -e "s/.*\(http[^<]\+\)<.*/\1/"`
 title=`cat /tmp/feeds | grep --max-count=1 -A 1 "<item>" \
@@ -26,7 +31,7 @@ description=`head /tmp/feeds -n 45 \
 caption=`echo $title | sed -e 's/[- ,]/_/g; s/[\n\r]//g;' \
          | tr [:upper:] [:lower:]`
 
-$WGET -O /tmp/document $url >/dev/null 2>&1
+$WGET -O /tmp/document $url >> $redirect 2>&1
 link=`cat /tmp/document | sed -n '/Download Wallpaper/ !n; /Download Wallpaper/ { s/.*href="\([^"]\+\)">Download Wallpaper.*/\1/; p; q;}'`
 
 if [ "${link}x" == "x" ]
@@ -58,7 +63,8 @@ then
     if [ ! -f "${storage}/${filename}" ]
     then
         cd $storage
-        $WGET --continue --output-document=$filename $link >/dev/null 2>&1
+
+        $WGET --output-document=$filename $link >> $redirect 2>&1
         echo $description > "${filename}.txt"
         cd - > /dev/null
     fi

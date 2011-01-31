@@ -17,6 +17,6 @@ redirect='/dev/null'
 # check the arguments, if debug is presented do the redirection to log file
 test "${1}" = 'debug' && redirect="${logfile}"
 
-/usr/bin/gw | /usr/bin/xargs /usr/bin/feh --bg-fill >> $redirect 2>&1
+/usr/bin/gw "${1}" | /usr/bin/xargs /usr/bin/feh --bg-fill >> $redirect 2>&1
 
 exit 0
