@@ -13,7 +13,7 @@ dzen-init &
 spacer 0
 cell=1
 
-for interface in `cat /proc/net/if_inet6 | grep -v lo | awk '{print $6}'`
+for interface in `cat /proc/net/dev | grep -e "[0-9]:" | sed -e "s/\s*\([-a-z0-9_]\+\):\s\+[1-9].*/\1/" | grep -e "^[a-z]"`
 do
     dzen-netmon $cell $interface &
     let "cell+=1"
