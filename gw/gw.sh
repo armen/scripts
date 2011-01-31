@@ -60,6 +60,12 @@ then
         filename="${caption}${extension}"
     fi
 
+    if [ -f "${storage}/${filename}" ]
+    then
+        filesize=$(stat -c%s "${storage}/${filename}")
+        test $filesize = 0 && rm -f "${storage}/${filename}"
+    fi
+
     if [ ! -f "${storage}/${filename}" ]
     then
         cd $storage
