@@ -60,20 +60,28 @@ then
         filename="${caption}${extension}"
     fi
 
-    if [ -f "${storage}/${filename}" ]
+    cd $storage    
+    prev_filename=$(ls ?????_$filename 2>/dev/null)
+
+    if [ "${prev_filename}x" != "x" ]
     then
-        filesize=$(stat -c%s "${storage}/${filename}")
-        test $filesize = 0 && rm -f "${storage}/${filename}"
+        filesize=$(stat -c%s $prev_filename)
+        test $filesize = 0 && rm -f $prev_filename
+        filename=$prev_filename
+    else
+        id=$( printf %05d $(( $(find $storage -maxdepth 1 -type f -name "[0-9]*.jpg" \
+                                | sort -d | tail -n 1 \
+                                | sed -e "s/[^1-9]\+\([1-9][0-9]*\)_.*/\1+1/" \
+                                      -e "s/[^1-9]\+0\+_.*/1/") )) )
+        filename="${id}_${filename}"
     fi
 
     if [ ! -f "${storage}/${filename}" ]
     then
-        cd $storage
-
         $WGET --output-document=$filename $link >> $redirect 2>&1
         echo $description > "${filename}.txt"
-        cd - > /dev/null
     fi
 
+    cd - > /dev/null
     echo "${storage}/${filename}"
 fi
