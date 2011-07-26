@@ -10,6 +10,7 @@
 # XXX: I do sucksify the wget, probably you don't, remove the tsocks from the
 # begining if you like
 WGET="wget --tries=1 --timeout=30 --continue"
+CAT="cat"
 
 logfile='/tmp/gw.log'
 redirect='/dev/null'
@@ -21,9 +22,12 @@ storage="${HOME}/.wallpapers/national_geographic"
 feeds="http://feeds.nationalgeographic.com/ng/photography/photo-of-the-day/"
 
 $WGET -O /tmp/feeds $feeds >> $redirect 2>&1
-url=`cat /tmp/feeds | grep --max-count=1 "<pheedo:origLink" \
+
+[ `file --brief --mime-type /tmp/feeds` == "application/x-gzip" ] && CAT="zcat"
+
+url=`$CAT /tmp/feeds | grep --max-count=1 "<pheedo:origLink" \
      | sed -e "s/.*\(http[^<]\+\)<.*/\1/"`
-title=`cat /tmp/feeds | grep --max-count=1 -A 1 "<item>" \
+title=`$CAT /tmp/feeds | grep --max-count=1 -A 1 "<item>" \
        | sed -n "/<title>/ !n; s/.*<title>\([^<]\+\)<.*/\1/; p;"`
 description=`head /tmp/feeds -n 45 \
              | sed -n '1h;1!H; ${g;s/.*<media:description>\([^<]\+\)<\/media:description>.*/\1/g;p;}' \
@@ -32,11 +36,15 @@ caption=`echo $title | sed -e 's/[- ,]/_/g; s/[\n\r]//g;' \
          | tr [:upper:] [:lower:]`
 
 $WGET -O /tmp/document $url >> $redirect 2>&1
-link=`cat /tmp/document | sed -n '/Download Wallpaper/ !n; /Download Wallpaper/ { s/.*href="\([^"]\+\)">Download Wallpaper.*/\1/; p; q;}'`
+
+CAT="cat"
+[ `file --brief --mime-type /tmp/feeds` == "application/x-gzip" ] && CAT="zcat"
+
+link=`$CAT /tmp/document | sed -n '/Download Wallpaper/ !n; /Download Wallpaper/ { s/.*href="\([^"]\+\)">Download Wallpaper.*/\1/; p; q;}'`
 
 if [ "${link}x" == "x" ]
 then
-    link=`cat /tmp/document | grep --max-count=1 "media-live.*cache" \
+    link=`$CAT /tmp/document | grep --max-count=1 "media-live.*cache" \
           | sed -e 's/.*\(http[^"]\+\).*/\1/'`
 fi
 
