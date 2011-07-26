@@ -29,7 +29,7 @@ url=`$CAT /tmp/feeds | grep --max-count=1 "<pheedo:origLink" \
      | sed -e "s/.*\(http[^<]\+\)<.*/\1/"`
 title=`$CAT /tmp/feeds | grep --max-count=1 -A 1 "<item>" \
        | sed -n "/<title>/ !n; s/.*<title>\([^<]\+\)<.*/\1/; p;"`
-description=`head /tmp/feeds -n 45 \
+description=`$CAT /tmp/feeds | head -n 45 \
              | sed -n '1h;1!H; ${g;s/.*<media:description>\([^<]\+\)<\/media:description>.*/\1/g;p;}' \
              | sed -e 's/(This photo and caption were submitted[^)]\+)//'`
 caption=`echo $title | sed -e 's/[- ,]/_/g; s/[\n\r]//g;' \
