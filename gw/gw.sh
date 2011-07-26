@@ -68,7 +68,7 @@ then
         filename="${caption}${extension}"
     fi
 
-    cd $storage    
+    cd $storage
     prev_filename=$(ls ?????_$filename 2>/dev/null)
 
     if [ "${prev_filename}x" != "x" ]
