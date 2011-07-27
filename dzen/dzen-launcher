@@ -95,7 +95,7 @@ function dzen_init()
     if [ $(which dmplex) ]
     then
         test ! -f $DM_PIPE && mkfifo $DM_PIPE > /dev/null 2>&1
-        tail -f $DM_PIPE | dmplex | dzen2 -dock -x %x -fn ${FONT} -bg "#000" -ta l
+        tail -f $DM_PIPE | dmplex | dzen2 -dock -e 'onstart=lower' -x %x -fn ${FONT} -bg "#000" -ta l
     fi
 }
 
