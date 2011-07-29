@@ -69,9 +69,14 @@ function dzen_netmon()
 function spacer()
 {
     start="^p(5)"
+    fg="#777"
+
+    test $1 = 0 && start=""
+
     # TODO: Removed hardcoded absolute positioning
-    test $1 = 0 && start="^pa(815)" # This is the first cell
-    echo "${1} ${start}^fg(#777)^ro(1,20)^p(5)^fg()" > $HOME/.dzen2/dmpipe
+    test $1 = 2 && start="^pa(790)" # This is the first cell
+
+    echo "${1} ${start}^fg(${fg})|^p(5)^fg()" > $HOME/.dzen2/dmpipe
 }
 
 function dzen_datetime()
@@ -99,6 +104,17 @@ function dzen_init()
     fi
 }
 
+function dzen_stdin()
+{
+    place=$1
+
+    while read line
+    do
+        echo "${place} ${line}" > $HOME/.dzen2/dmpipe
+        echo "${place} ${line}" >> /tmp/dzen
+    done
+}
+
 function dzen_launcher()
 {
     test ! -d $DZEN_HOME && mkdir -p $DZEN_HOME >/dev/null
@@ -114,17 +130,23 @@ function dzen_launcher()
         exit 1;
     fi
 
-    spacer 0
+    spacer 0 empty
     cell=1
+
+    dzen_stdin $cell < /dev/stdin &
+    let "cell+=1"
 
     for interface in `cat /proc/net/dev | grep -e "[0-9]:" | sed -e "s/\s*\([-a-z0-9_]\+\):\s\+[1-9].*/\1/" | grep -e "^[a-z0-9]\+$"`
     do
-        dzen_netmon $cell $interface &
-        let "cell+=1"
-
         spacer $cell
         let "cell+=1"
+
+        dzen_netmon $cell $interface &
+        let "cell+=1"
     done
+
+    spacer $cell
+    let "cell+=1"
 
     dzen_datetime $cell &
     let "cell+=1"
