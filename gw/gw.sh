@@ -10,46 +10,39 @@
 # XXX: I do sucksify the wget, probably you don't, remove the tsocks from the
 # begining if you like
 WGET="wget --tries=1 --timeout=30 --continue"
-CAT="cat"
 
 logfile='/tmp/gw.log'
 redirect='/dev/null'
+storage="${HOME}/.wallpapers/national_geographic"
+
+url="${1}"
 
 # check the arguments, if debug is presented do the redirection to log file
-test "${1}" = 'debug' && redirect="${logfile}"
+test "${1}" = 'debug' && redirect="${logfile}" && url="${2}"
 
-storage="${HOME}/.wallpapers/national_geographic"
-feeds="http://feeds.nationalgeographic.com/ng/photography/photo-of-the-day/"
-
-$WGET -O /tmp/feeds $feeds >> $redirect 2>&1
-
-[ `file --brief --mime-type /tmp/feeds` == "application/x-gzip" ] && CAT="zcat"
-
-url=`$CAT /tmp/feeds | grep --max-count=1 "<pheedo:origLink" \
-     | sed -e "s/.*\(http[^<]\+\)<.*/\1/"`
-title=`$CAT /tmp/feeds | grep --max-count=1 -A 1 "<item>" \
-       | sed -n "/<title>/ !n; s/.*<title>\([^<]\+\)<.*/\1/; p;"`
-description=`$CAT /tmp/feeds | head -n 45 \
-             | sed -n '1h;1!H; ${g;s/.*<media:description>\([^<]\+\)<\/media:description>.*/\1/g;p;}' \
-             | sed -e 's/(This photo and caption were submitted[^)]\+)//'`
-caption=`echo $title | sed -e 's/[- ,]/_/g; s/[\n\r]//g;' \
-         | tr [:upper:] [:lower:]`
+if [ "${url}x" = "x" ]
+then
+    url="http://photography.nationalgeographic.com/photography/photo-of-the-day/"
+fi
 
 $WGET -O /tmp/document $url >> $redirect 2>&1
 
-CAT="cat"
-[ `file --brief --mime-type /tmp/feeds` == "application/x-gzip" ] && CAT="zcat"
-
-link=`$CAT /tmp/document | sed -n '/Download Wallpaper/ !n; /Download Wallpaper/ { s/.*href="\([^"]\+\)">Download Wallpaper.*/\1/; p; q;}'`
+link=`cat /tmp/document | sed -n '/Download Wallpaper/ !n; /Download Wallpaper/ { s/.*href="\([^"]\+\)">Download Wallpaper.*/\1/; p; q;}'`
 
 if [ "${link}x" == "x" ]
 then
-    link=`$CAT /tmp/document | grep --max-count=1 "media-live.*cache" \
-          | sed -e 's/.*\(http[^"]\+\).*/\1/'`
+    link=`grep /tmp/document -e '<meta property="og:image"' | sed -e 's/.*content="\([^"]\+\)".*/\1/'`
 fi
 
+description=`grep /tmp/document -A 100 -e '<div id="caption">' | sed -e "s/<a.*<\/a>//" | sed -n '1h;1!H; ${g;s/.*<p>\([^<]\+\)<\/p>.*/\1/g;p;}'`
+title=`grep /tmp/document -A 100 -e '<div id="caption">' | sed -n '1h;1!H; ${g;s/.*<h2>\([^<]\+\)<\/h2>.*/\1/g;p;}'`
+caption=`echo $title | sed -e 's/[- ,]/_/g; s/[\n\r]//g;' \
+         | tr [:upper:] [:lower:]`
+ogurl=`grep /tmp/document -e '<meta property="og:url"' | sed -e 's/.*content="\([^"]\+\)".*/\1/'`
+credit=`grep /tmp/document -e '"credit"' | sed -e 's/<[^>]\+>//g' | sed -e 's/^\s*//'`
+crediturl=`grep /tmp/document -e '"credit"' | sed -e 's/.*href="\([^"]\+\)".*/\1/' | grep -e "http"`
+
 rm -rf /tmp/document
-rm -rf /tmp/feeds
 
 if [ "${link}x" != "x" ]
 then
@@ -87,7 +80,13 @@ then
     if [ ! -f "${storage}/${filename}" ]
     then
         $WGET --output-document=$filename $link >> $redirect 2>&1
-        echo $description > "${filename}.txt"
+
+        echo $title >> "${filename}.txt"
+        echo $description >> "${filename}.txt"
+        echo >> "${filename}.txt"
+        echo $credit >> "${filename}.txt"
+        echo $crediturl >> "${filename}.txt"
+        echo $ogurl >> "${filename}.txt"
     fi
 
     cd - > /dev/null
