@@ -31,13 +31,13 @@ link=`cat /tmp/document | sed -n '/Download Wallpaper/ !n; /Download Wallpaper/ 
 
 if [ "${link}x" == "x" ]
 then
-    link=`grep /tmp/document -e '<meta property="og:image"' | sed -e 's/.*content="\([^"]\+\)".*/\1/'`
+    #link=`grep /tmp/document -e '<meta property="og:image"' | sed -e 's/.*content="\([^"]\+\)".*/\1/'`
+    link=`cat /tmp/document | grep --max-count=1 "media-live.*cache"  | sed -e 's/.*\(http[^"]\+\).*/\1/'`
 fi
 
 description=`grep /tmp/document -A 100 -e '<div id="caption">' | sed -e "s/<a.*<\/a>//" | sed -n '1h;1!H; ${g;s/.*<p>\([^<]\+\)<\/p>.*/\1/g;p;}'`
 title=`grep /tmp/document -A 100 -e '<div id="caption">' | sed -n '1h;1!H; ${g;s/.*<h2>\([^<]\+\)<\/h2>.*/\1/g;p;}'`
-caption=`echo $title | sed -e 's/[- ,]/_/g; s/[\n\r]//g;' \
-         | tr [:upper:] [:lower:]`
+caption=`echo $title | sed -e 's/[- ,]/_/g; s/[\n\r]//g;' | tr [:upper:] [:lower:]`
 ogurl=`grep /tmp/document -e '<meta property="og:url"' | sed -e 's/.*content="\([^"]\+\)".*/\1/'`
 credit=`grep /tmp/document -e '"credit"' | sed -e 's/<[^>]\+>//g' | sed -e 's/^\s*//'`
 crediturl=`grep /tmp/document -e '"credit"' | sed -e 's/.*href="\([^"]\+\)".*/\1/' | grep -e "http"`
@@ -51,8 +51,7 @@ then
         mkdir -p $storage
     fi
 
-    filepath=`echo "$link" | perl -MURI -le \
-              'chomp($link = <>); print URI->new($link)->path'`
+    filepath=`echo "$link" | perl -MURI -le 'chomp($link = <>); print URI->new($link)->path'`
     filename=`basename "${filepath}"`
 
     if [ "${caption}x" != "x" ]
